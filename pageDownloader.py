@@ -18,7 +18,7 @@ def picDoDownloader(init, date, url, part, index):
             if 'R-18' == tag['tag']:
                 index = True
         if index:
-            ImgDownloader(init, date, url, part, index, '\\\\R-18')
+            ImgDownloader(init, date, url, part, index, '' + os.sep + '' + os.sep + 'R-18')
         else:
             ImgDownloader(init, date, url, part, index)
     elif int(init.classify) == 3:
@@ -27,20 +27,19 @@ def picDoDownloader(init, date, url, part, index):
                 ImgDownloader(init, date, url, part, index)
 
 
-def ImgDownloader(init, date, url, part, index, R='\\\\'):
+def ImgDownloader(init, date, url, part, index, R='' + os.sep + '' + os.sep + ''):
     global targeImg
     try:
         sty = url.split(".")[-1]
         PIC = init.se.get(url, headers=init.headers)
-        if os.path.exists(parse.unquote(init.name) + R + '\\gif'):
+        if os.path.exists(parse.unquote(init.folderName) + R + '' + os.sep + 'gif'):
             pass
         else:
-            os.makedirs(parse.unquote(init.name) + R + '\\gif')
+            os.makedirs(parse.unquote(init.folderName) + R + '' + os.sep + 'gif')
         if url.find('img-zip-ugoira') != -1:
-            targeImg = '.\\%s%s\\gif\\%s %s.%s' % (parse.unquote(init.name), R, date['illustId'], date['userId'], sty)
+            targeImg = '.' + os.sep + parse.unquote(init.folderName) + R + os.sep + 'gif' + os.sep + date['illustId'] + ' ' + date['userId'] + '.' + sty
         else:
-            targeImg = '.\\%s%s\\%s %s %s.%s' % (
-            parse.unquote(init.name), R, date['illustId'], date['userId'], part, sty)
+            targeImg = '.' + os.sep + parse.unquote(init.folderName) + R + os.sep + date['illustId']+ ' ' + date['userId'] + part +'.' + sty
         if os.path.exists(targeImg):
             print('图片 ' + url + ' 存在,跳过了!')
             return 0
@@ -65,12 +64,12 @@ def ImgDownloader(init, date, url, part, index, R='\\\\'):
                 img_paths = files
             gif_images = []
             for path in img_paths:
-                gif_images.append(imageio.imread(targeImgz + '\\' + path))
-            imageio.mimsave(targeImgz + '\\' + "final.gif", gif_images, fps=24)
+                gif_images.append(imageio.imread(targeImgz + '' + os.sep + '' + path))
+            imageio.mimsave(targeImgz + '' + os.sep + '' + "final.gif", gif_images, fps=24)
             # print('动图组 ' + url + ' 生成GIF结束')
             # print('动图组 ' + url + ' 垃圾文件处理中')
             for path in img_paths:
-                os.remove(targeImgz + '\\' + path)
+                os.remove(targeImgz + '' + os.sep + '' + path)
             # print('动图组 ' + url + ' 垃圾文件处理结束')
         # print('下载 ' + url + '结束了! 请自行检查文件是否成功!')
         return 0
@@ -78,10 +77,10 @@ def ImgDownloader(init, date, url, part, index, R='\\\\'):
         print('下载/解压 ' + url + '失败了!', end='')
         print(e)
         PIC = init.se.get(url, headers=init.headers)
-        if os.path.exists(parse.unquote(init.name) + R):
+        if os.path.exists(parse.unquote(init.folderName) + R):
             pass
         else:
-            os.makedirs(parse.unquote(init.name) + R)
+            os.makedirs(parse.unquote(init.folderName) + R)
         with open(targeImg, mode='wb') as pic:
             pic.write(PIC.content)
         # print('下载 ' + url + '结束了! 请自行检查文件是否成功!')

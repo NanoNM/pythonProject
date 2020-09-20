@@ -5,6 +5,8 @@ import time
 import StaticDateInit
 import pageDownloader
 from pageDownloader import *
+from Login import seleLogin
+from faker import Faker
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
@@ -45,21 +47,39 @@ threads = []
 safeStop = True
 
 
+def userInfoGe():
+    print("您是第一次使用本程序? 请按照要求输入信息.")
+    loginMod = input('你已经知道你的cookie了? y/n') or 'n'
+    if loginMod == 'n' or loginMod == 'N':
+        cookie = seleLogin()
+    else:
+        cookie = input("输入您的Cookie\n")
+    item = {"projectName": 'settingFile',
+            'Cookie': cookie,
+            'user-agent': '废弃了的'}
+    with open('.' + os.sep + 'userInfo.config', 'w', encoding='utf-8') as file:
+        file.write(json.dumps(item, ensure_ascii=False))
+    print("请稍等 ..")
+
+
 def start(Name):
+    folderName = name.replace(':', '').replace('?', '').replace('\\', '').replace('/', '').replace('*', '').replace('|','').replace('<', '').replace('>', '')
     Index = True
     while Index:
         print("配置文件加载中 . . .")
-        if os.path.exists('.\\userInfo.config'):
+        if os.path.exists('.' + os.sep + 'userInfo.config'):
+            # if os.path.exists('.\\userInfo.config'):
             global BaseData, NewTask
             Index = False
-            with open('.\\userInfo.config', 'r', encoding='utf-8') as file:
+            with open('.' + os.sep + 'userInfo.config', 'r', encoding='utf-8') as file:
                 content = file.read()
                 config = json.loads(content)
-            if os.path.exists(parse.unquote(name) + '\\lastTask\\main.log'):
+            if os.path.exists(parse.unquote(folderName) + '' + os.sep + 'lastTask' + os.sep + 'main.log'):
                 x = input('检测到上次的未完成任务 是否继续未完成的任务(Y/N)') or 'y'
                 if x == 'Y' or x == 'y':
                     NewTask = False
-                    with open(parse.unquote(name) + '\\lastTask\\main.log', 'r', encoding='utf-8') as file:
+                    with open(parse.unquote(folderName) + '' + os.sep + 'lastTask' + os.sep + 'main.log', 'r',
+                              encoding='utf-8') as file:
                         last = file.read()
                         last = json.loads(last)
                     openThread = last['thread']
@@ -76,7 +96,8 @@ def start(Name):
                         while thrIndex < int(openThread):
                             path = 'thread' + str(thrIndex)
                             print(path + '文件读取尝试!')
-                            with open(parse.unquote(name) + '\\lastTask\\%s.log' % path, 'r', encoding='utf-8') as file:
+                            with open(parse.unquote(folderName) + '' + os.sep + 'lastTask' + os.sep + path + '.log', 'r',
+                                      encoding='utf-8') as file:
                                 last = file.read()
                                 threadLast = json.loads(last)
                             if threadLast['threadStart'] == threadLast['threadStop']:
@@ -88,7 +109,7 @@ def start(Name):
                             threads.append(thr)
                             thrIndex += 1
                 else:
-                    shutil.rmtree(parse.unquote(name) + '\\lastTask')
+                    shutil.rmtree(parse.unquote(folderName) + '' + os.sep + 'lastTask')
                     BaseData = StaticDateInit.init(config['Cookie'], Name, minlike, pagenum, thread, classify,
                                                    config['user-agent'])
             else:
@@ -97,14 +118,7 @@ def start(Name):
 
             print("欢迎使用本程序!")
         else:
-            print("您是第一次使用本程序? 请按照要求输入信息.")
-            item = {"projectName": 'settingFile',
-                    'Cookie': input("输入您的Cookie\n"),
-                    'user-agent': input("输入您的user-agent\n")}
-            #
-            with open('.\\userInfo.config', 'w', encoding='utf-8') as file:
-                file.write(json.dumps(item, ensure_ascii=False))
-            print("请稍等 ..")
+            userInfoGe()
 
 
 def realStart(Start='null', Stop='null', threadID=None, threadStart=0, threadStop=0, this=None):
@@ -162,7 +176,7 @@ class work(threading.Thread):
         self.threadID = threadID
         self.name = name
         self.page = page
-        self.unfinished = 0
+        self.unfinished = None
         self.stopPage = stopPage
 
     def run(self):
@@ -175,22 +189,23 @@ def panterStart(userID):
     Index = True
     while Index:
         print("配置文件加载中 . . .")
-        if os.path.exists('.\\userInfo.config'):
+        if os.path.exists('.' + os.sep + 'userInfo.config'):
             global BaseData, NewTask
             Index = False
-            with open('.\\userInfo.config', 'r', encoding='utf-8') as file:
+            with open('.' + os.sep + 'userInfo.config', 'r', encoding='utf-8') as file:
                 content = file.read()
                 config = json.loads(content)
-            if os.path.exists(userID + '\\lastTask\\main.log'):
+            if os.path.exists(userID + '' + os.sep + 'lastTask' + os.sep + 'main.log'):
                 x = input('检测到上次的未完成任务 是否继续未完成的任务(Y/N)') or 'y'
                 if x == 'Y' or x == 'y':
                     NewTask = False
-                    with open(userID + '\\lastTask\\main.log', 'r', encoding='utf-8') as file:
+                    with open(userID + '' + os.sep + 'lastTask' + os.sep + 'main.log', 'r', encoding='utf-8') as file:
                         last = file.read()
                         last = json.loads(last)
                     openThread = last['thread']
                     if int(openThread) < 2:
-                        with open(userID + '\\lastTask\\None.log', 'r', encoding='utf-8') as file:
+                        with open(userID + '' + os.sep + 'lastTask' + os.sep + 'None.log', 'r',
+                                  encoding='utf-8') as file:
                             lastT = file.read()
                             lastT = json.loads(lastT)
                         BaseData = StaticDateInit.init(config['Cookie'], userID, last['minlike'], last['MaxPage'],
@@ -206,7 +221,8 @@ def panterStart(userID):
                         while thrIndex < int(openThread):
                             path = 'thread' + str(thrIndex)
                             print(path + '文件读取尝试!')
-                            with open(parse.unquote(name) + '\\lastTask\\%s.log' % path, 'r', encoding='utf-8') as file:
+                            with open(parse.unquote(name) + '' + os.sep + 'lastTask' + os.sep + path + '.log', 'r',
+                                      encoding='utf-8') as file:
                                 last = file.read()
                                 threadLast = json.loads(last)
                             if threadLast['threadStart'] == threadLast['threadStop']:
@@ -219,7 +235,7 @@ def panterStart(userID):
                             thrIndex += 1
                             return 0
                 else:
-                    shutil.rmtree(userID + '\\lastTask')
+                    shutil.rmtree(userID + '' + os.sep + 'lastTask')
                     BaseData = StaticDateInit.init(config['Cookie'], userID, minlike, pagenum, thread, classify,
                                                    config['user-agent'])
             else:
@@ -227,12 +243,7 @@ def panterStart(userID):
                                                config['user-agent'])
             print("欢迎使用本程序!")
         else:
-            print("您是第一次使用本程序? 请按照要求输入信息.")
-            item = {"projectName": 'settingFile',
-                    'Cookie': input("输入您的Cookie\n")}
-            with open('.\\userInfo.config', 'w', encoding='utf-8') as file:
-                file.write(json.dumps(item, ensure_ascii=False))
-            print("请稍等 ..")
+            userInfoGe()
 
 
 if __name__ == '__main__':
@@ -246,15 +257,16 @@ if __name__ == '__main__':
             html = requests.session().get("https://www.pixiv.net", headers={
                 'Referer': 'https://www.pixiv.net',
                 'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:15.0) Gecko/20100101 Firefox/15.0.1'},
-                                          verify=False, timeout=3)
+                                          verify=False, timeout=6)
             break
-        except requests.exceptions.ConnectionError as e:
+        except Exception as e:
             print("网络检查失败了, 原因: ", end='')
             print(e)
             i = input('输入E停止程序, 输入其他重启测试\n')
-            if i == 'E':
+            if i == 'E' or i == 'e':
                 sys.exit(1)
     print("网络连通性检查通过")
+
     mode = input('模式选择 \n1. 遍历模式(默认)\n2. 画师模式\n3. 画模式\n') or '1'
     if mode == '1':
         print('当前模式 遍历模式 如果是想继续上次任务 只需要输入名字 其他全部空白')
@@ -320,18 +332,24 @@ if __name__ == '__main__':
                 else:
                     status = 'Stoped'
                 print('线程' + thr.name + '的状态是: ' + status)
-        if cmd == "stops":
+        elif cmd == "stops":
             safeStop = False
             print("请等待所有线程退出后即可安全 退出")
-        if cmd == "msn":
-            print()
+        elif cmd == "msn":
             unfinishedall = 0
+            index = False
             for thr in threads:
-                print(thr.unfinished)
+                if thr.unfinished is None:
+                    print('还没有计算完成 稍后再试')
+                    break
                 unfinishedall = unfinishedall + thr.unfinished
-            print('任务完成了: ' + str(int(BaseData.pagenum) / (int(BaseData.pagenum) - unfinishedall)) + '%')
-
-
-
-
-
+                index = True
+            if index:
+                print('任务完成了: ' + str(((int(BaseData.pagenum) - unfinishedall) / int(BaseData.pagenum)) * 100) + '%')
+        elif cmd == 'about':
+            print('===========================\n'
+                  'Pixder V3.1.3 by Nanometer\n'
+                  '艾米莉亚有点可爱 同志们 开冲冲\n'
+                  '===========================\n')
+        else:
+            print('没有一个名为' + cmd + '的命令')

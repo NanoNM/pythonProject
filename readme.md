@@ -13,15 +13,23 @@
    3. 严格按照print打印的出来的守则使用程序
    
    4. 发现bug和研究出更好的方法和我联系wfprivate@outlook.com
+   
+   5. 务必下载适合你系统的webdriver放入webdriver文件夹 目前仅在centos和windows上测试chrome 暂时未发现问题
     
 >运行时指令 只能遍历模式下使用
 
-   `status`--查看线程存活状态
+   `status`--查看线程存活状态 如果某一条线程长时间在线可能是在解压缩包或者生成gif等待即可 实在不行可以关闭
    
    `stops`--安全的关闭程序 会给告诉每条线程下载完成当前图片/gif即可停止 `status`查看
    所有线程位stoped的即可安全关闭软件
    
-   `msn`--查看任务完成度 可能有问题 我太困了
+   `msn`--指令有问题 并不会精确到图片 只会精确到页面所以即使完成了100也要用status检查线程全部关闭
+  
+   `about`--查看关于信息
+   
+>跨平台
+    
+   目前测试中 支持Windows, centos, Debian, Termux(你必须想办法拿到你手机的cookie), 只要能装python环境基本没问题
     
 >关于本次代码和作者
     
